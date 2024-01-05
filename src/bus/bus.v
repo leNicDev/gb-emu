@@ -1,6 +1,7 @@
 module bus
 
 import cart
+import common
 
 // Memory map:
 // 0x0000 - 0x3FFF : ROM Bank 0
@@ -23,7 +24,8 @@ pub fn read(address u16) u8 {
 		return cart.read(address)
 	}
 
-	panic("Bus reading from this address range is not implemented yet.")
+	// panic("Bus reading from this address range is not implemented yet.")
+	return 0
 }
 
 pub fn write(address u16, value u8) {
@@ -33,5 +35,16 @@ pub fn write(address u16, value u8) {
 		return
 	}
 
-	panic("Bus writing to this address range is not implemented yet.")
+	// panic("Bus writing to this address range is not implemented yet.")
+}
+
+pub fn read16(address u16) u16 {
+	lo := read(address)
+	hi := read(address + 1)
+	return common.combine(hi, lo)
+}
+
+pub fn write16(address u16, value u16) {
+	write(address + 1, u8(value >> 8))
+	write(address, u8(value))
 }
