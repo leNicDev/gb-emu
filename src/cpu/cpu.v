@@ -59,7 +59,7 @@ pub fn step() bool {
 		byte_1 := cpu_context.current_opcode
 		byte_2 := bus.read(pc + 1)
 		byte_3 := bus.read(pc + 2)
-		println('${pc:04X}: ${in_name:7} (${byte_1:X} ${byte_2:X} ${byte_3:X}) A: ${cpu_context.registers.a:X} B: ${cpu_context.registers.b:X} C: ${cpu_context.registers.c:X}')
+		println('${pc:04X}: ${in_name:7} (${byte_1:02X} ${byte_2:02X} ${byte_3:02X}) A: ${cpu_context.registers.a:02X} B: ${cpu_context.registers.b:02X} C: ${cpu_context.registers.c:02X}')
 
 		execute_instruction()
 	}
