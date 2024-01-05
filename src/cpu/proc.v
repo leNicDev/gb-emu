@@ -7,6 +7,8 @@ const instruction_processors := {
 	InstructionType.in_nop: proc_nop
 	InstructionType.in_ld: proc_ld
 	InstructionType.in_jp: proc_jp
+	InstructionType.in_di: proc_di
+	InstructionType.in_xor: proc_xor
 }
 
 fn check_conditions(ctx &CpuContext) bool {
@@ -39,4 +41,13 @@ fn proc_jp(mut ctx &CpuContext) {
 		ctx.registers.pc = ctx.fetched_data
 		cycles(1)
 	}
+}
+
+fn proc_di(mut ctx &CpuContext) {
+	ctx.master_interrupt_enabled = false
+}
+
+fn proc_xor(mut ctx &CpuContext) {
+	ctx.registers.a ^= u8(ctx.fetched_data & 0xFF)
+	set_flags(i8(ctx.registers.a), 0, 0, 0)
 }

@@ -29,6 +29,8 @@ struct CpuContext {
 
 		halted bool
 		stepping bool
+
+		master_interrupt_enabled bool
 }
 
 __global cpu_context &CpuContext
@@ -37,6 +39,7 @@ pub fn init() {
 	cpu_context = &CpuContext{
 		registers: CpuRegisters{
 			pc: 0x100
+			a: 0x01
 		}
 
 		fetched_data: 0
@@ -59,12 +62,30 @@ pub fn step() bool {
 		byte_1 := cpu_context.current_opcode
 		byte_2 := bus.read(pc + 1)
 		byte_3 := bus.read(pc + 2)
-		println('${pc:04X}: ${in_name:7} (${byte_1:02X} ${byte_2:02X} ${byte_3:02X}) A: ${cpu_context.registers.a:02X} B: ${cpu_context.registers.b:02X} C: ${cpu_context.registers.c:02X}')
+		print_cpu_state(pc, in_name, byte_1, byte_2, byte_3, cpu_context.registers.a, cpu_context.registers.b, cpu_context.registers.c)
 
 		execute_instruction()
 	}
 
 	return true
+}
+
+pub fn set_flags(z i8, n i8, h i8, c i8) {
+	if z >= 0 {
+		common.bit_set(cpu_context.registers.f, 7, z == 1)
+	}
+
+	if n >= 0 {
+		common.bit_set(cpu_context.registers.f, 6, n == 1)
+	}
+
+	if h >= 0 {
+		common.bit_set(cpu_context.registers.f, 5, h == 1)
+	}
+
+	if c >= 0 {
+		common.bit_set(cpu_context.registers.f, 4, c == 1)
+	}
 }
 
 fn fetch_instruction() {
@@ -75,7 +96,12 @@ fn fetch_instruction() {
 	cpu_context.registers.pc++
 
 	cpu_context.current_instruction = instruction_by_opcode(cpu_context.current_opcode) or {
-		panic('Unknown instruction ${cpu_context.current_opcode:X}')
+		in_name := instruction_names[cpu_context.current_instruction.in_type]
+		byte_1 := cpu_context.current_opcode
+		byte_2 := bus.read(cpu_context.registers.pc + 1)
+		byte_3 := bus.read(cpu_context.registers.pc + 2)
+		print_cpu_state(cpu_context.registers.pc - 1, in_name, byte_1, byte_2, byte_3, cpu_context.registers.a, cpu_context.registers.b, cpu_context.registers.c)
+		panic('${cpu_context.registers.pc - 1:04X}: Unknown instruction ${cpu_context.current_opcode:02X}')
 	}
 }
 
@@ -147,3 +173,7 @@ fn read_register(reg_type RegisterType) u16 {
 }
 
 fn cycles(cycles int) {}
+
+fn print_cpu_state(pc u16, in_name string, byte_1 u8, byte_2 u8, byte_3 u8, a u8, b u8, c u8) {
+	println('${pc:04X}: ${in_name:7} (${byte_1:02X} ${byte_2:02X} ${byte_3:02X}) A: ${a:02X} B: ${b:02X} C: ${c:02X}')
+}

@@ -190,6 +190,9 @@ const all_instructions := {
 		in_type: InstructionType.in_jp
 		addr_mode: AddressingMode.am_d16
 	}
+	0xF3: Instruction{
+		in_type: InstructionType.in_di
+	}
 }
 
 pub fn instruction_by_opcode(opcode u8) ?Instruction {
