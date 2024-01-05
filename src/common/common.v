@@ -1,7 +1,7 @@
 module common
 
-pub fn bit(a u8, n u8) u8 {
-	return u8(a & (1 << n))
+pub fn bit(a u8, n u8) bool {
+	return a & (1 << n) == 1
 }
 
 pub fn bit_set(a u8, n u8, value bool) u8 {
@@ -22,4 +22,14 @@ pub fn reverse(n u16) u16 {
 
 pub fn combine(hi u8, lo u8) u16 {
 	return (u16(hi) << 8) | u16(lo)
+}
+
+// flags
+
+pub fn cpu_flag_z(a u8) bool {
+	return bit(a, 7)
+}
+
+pub fn cpu_flag_c(a u8) bool {
+	return bit(a, 4)
 }

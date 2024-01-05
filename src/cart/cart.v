@@ -32,14 +32,10 @@ __global cart_context &CartContext
 pub fn load(filename string) {
 	println('Loading cartridge ${filename}...')
 
-	file_size := os.file_size(filename)
-
-	file := os.open_file(filename, "r") or {
+	rom_data := os.read_bytes(filename) or {
 		panic(err)
 		return
 	}
-
-	mut rom_data := file.read_bytes(int(file_size))
 
 	cart_context = &CartContext{
 		filename: filename
@@ -48,7 +44,7 @@ pub fn load(filename string) {
 		header: RomHeader{
 			entry: rom_data[0x100..0x104]
 			logo: rom_data[0x104..0x134]
-			title: rom_data[0x134..0x144]
+			title: rom_data[0x134..0x143]
 			new_lic_code: binary.big_endian_u16_at(rom_data, 0x144)
 			sgb_flag: rom_data[0x146]
 			cart_type: rom_data[0x147]

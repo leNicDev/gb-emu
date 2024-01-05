@@ -193,7 +193,7 @@ const all_instructions := {
 }
 
 pub fn instruction_by_opcode(opcode u8) ?Instruction {
-	if (all_instructions[opcode].in_type == InstructionType.in_none) {
+	if all_instructions[opcode].in_type == InstructionType.in_none {
 		return none
 	}
 	return all_instructions[opcode]

@@ -55,8 +55,12 @@ pub fn step() bool {
 		fetch_instruction()
 		fetch_data()
 
-		println('Executing instruction: 0x${cpu_context.current_opcode:X}   PC: 0x${pc:X}')
-		
+		in_name := instruction_names[cpu_context.current_instruction.in_type]
+		byte_1 := cpu_context.current_opcode
+		byte_2 := bus.read(pc + 1)
+		byte_3 := bus.read(pc + 2)
+		println('${pc:04X}: ${in_name:7} (${byte_1:X} ${byte_2:X} ${byte_3:X}) A: ${cpu_context.registers.a:X} B: ${cpu_context.registers.b:X} C: ${cpu_context.registers.c:X}')
+
 		execute_instruction()
 	}
 
@@ -66,12 +70,12 @@ pub fn step() bool {
 fn fetch_instruction() {
 	// set current opcode to current address inside the program counter
 	cpu_context.current_opcode = bus.read(cpu_context.registers.pc)
-
+	
 	// increment program counter by one address
 	cpu_context.registers.pc++
 
 	cpu_context.current_instruction = instruction_by_opcode(cpu_context.current_opcode) or {
-		panic('Unknown instruction 0x${cpu_context.current_opcode:X}')
+		panic('Unknown instruction ${cpu_context.current_opcode:X}')
 	}
 }
 
@@ -106,14 +110,17 @@ fn fetch_data() {
 		}
 
 		else {
-			panic("Unknown addressing mode 0x${cpu_context.current_instruction.addr_mode:X}")
+			panic("Unknown addressing mode ${cpu_context.current_instruction.addr_mode:X}")
 			return
 		}
 	}
 }
 
 fn execute_instruction() {
-	println("\tNot executing yet...")
+	instruction_processor := instruction_processors[cpu_context.current_instruction.in_type] or {
+		panic("Failed to get instruction processor for instruction ${cpu_context.current_instruction.in_type:X}")
+	}
+	instruction_processor(cpu_context)
 }
 
 fn read_register(reg_type RegisterType) u16 {
