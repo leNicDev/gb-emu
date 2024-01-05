@@ -11,6 +11,7 @@ enum AddressingMode {
 	am_r_hli
 	am_r_hld
 	am_hli_r
+	am_hld_r
 	am_r_a8
 	am_a8_r
 	am_hl_spr

@@ -105,43 +105,6 @@ fn fetch_instruction() {
 	}
 }
 
-fn fetch_data() {
-	cpu_context.mem_dest = 0
-	cpu_context.dest_is_mem = false
-
-	match cpu_context.current_instruction.addr_mode {
-		.am_imp { return }
-
-		.am_r {
-			cpu_context.fetched_data = read_register(cpu_context.current_instruction.reg_1)
-			return
-		}
-
-		.am_r_d8 {
-			cpu_context.fetched_data = bus.read(cpu_context.registers.pc)
-			cycles(1)
-			cpu_context.registers.pc++
-			return
-		}
-
-		.am_d16 {
-			lo := bus.read(cpu_context.registers.pc)
-			cycles(1)
-			hi := bus.read(cpu_context.registers.pc + 1)
-			cycles(1)
-
-			cpu_context.fetched_data = lo | (u16(hi) << 8)
-			cpu_context.registers.pc += 2
-			return
-		}
-
-		else {
-			panic("Unknown addressing mode ${cpu_context.current_instruction.addr_mode:X}")
-			return
-		}
-	}
-}
-
 fn execute_instruction() {
 	instruction_processor := instruction_processors[cpu_context.current_instruction.in_type] or {
 		panic("Failed to get instruction processor for instruction ${cpu_context.current_instruction.in_type:X}")
@@ -169,6 +132,75 @@ fn read_register(reg_type RegisterType) u16 {
 		.rt_sp { return cpu_context.registers.sp }
 
 		else { return 0 }
+	}
+}
+
+pub fn set_register(reg_type RegisterType, value u16) {
+	match reg_type {
+		.rt_a {
+			cpu_context.registers.a = u8(value)
+			return
+		}
+		.rt_f {
+			cpu_context.registers.f = u8(value)
+			return
+		}
+		.rt_b {
+			cpu_context.registers.b = u8(value)
+			return
+		}
+		.rt_c {
+			cpu_context.registers.c = u8(value)
+			return
+		}
+		.rt_d {
+			cpu_context.registers.d = u8(value)
+			return
+		}
+		.rt_e {
+			cpu_context.registers.e = u8(value)
+			return
+		}
+		.rt_h {
+			cpu_context.registers.h = u8(value)
+			return
+		}
+		.rt_l {
+			cpu_context.registers.l = u8(value)
+			return
+		}
+
+		.rt_af {
+			cpu_context.registers.a = common.hi(value)
+			cpu_context.registers.f = common.lo(value)
+			return
+		}
+		.rt_bc {
+			cpu_context.registers.b = common.hi(value)
+			cpu_context.registers.c = common.lo(value)
+			return
+		}
+		.rt_de {
+			cpu_context.registers.d = common.hi(value)
+			cpu_context.registers.e = common.lo(value)
+			return
+		}
+		.rt_hl {
+			cpu_context.registers.h = common.hi(value)
+			cpu_context.registers.l = common.lo(value)
+			return
+		}
+
+		.rt_pc {
+			cpu_context.registers.pc = value
+			return
+		}
+		.rt_sp {
+			cpu_context.registers.sp = value
+			return
+		}
+
+		.rt_none { return }
 	}
 }
 

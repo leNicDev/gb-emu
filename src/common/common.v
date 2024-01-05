@@ -24,6 +24,14 @@ pub fn combine(hi u8, lo u8) u16 {
 	return (u16(hi) << 8) | u16(lo)
 }
 
+pub fn hi(value u16) u8 {
+	return u8(value)
+}
+
+pub fn lo(value u16) u8 {
+	return u8(value << 8)
+}
+
 // flags
 
 pub fn cpu_flag_z(a u8) bool {
